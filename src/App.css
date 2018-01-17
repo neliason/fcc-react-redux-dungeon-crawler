@@ -2,15 +2,18 @@
   text-align: center;
 }
 
-.block-value-1 {
-  background-color: blue;
-  color: white;
-}
-
 .block {
   display: inline-block;
   width: 15px;
   height: 15px;
   font-size: 12px;
   outline: .5px solid #ccc;
+}
+
+.block-value-1 {
+  background-color: blue;
+}
+
+.block-value-2 {
+  background-color: green;
 }

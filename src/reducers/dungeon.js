@@ -9,7 +9,10 @@ for (let i = 0; i < MAP_HEIGHT; i++) {
     initialMap[i][j] = 0;
   }
 }
-initialMap[MAP_HEIGHT/2][MAP_WIDTH/2] = 1;
+const playerStartingRow = MAP_HEIGHT/2;
+const playerStartingCol = MAP_WIDTH/2
+initialMap[playerStartingRow][playerStartingCol] = 1;
+initialMap[playerStartingRow-2][playerStartingCol] = 2;
 
 const initialState = {
   map: initialMap,
@@ -19,8 +22,8 @@ const initialState = {
   playerLevel: 1,
   playerXPToNextLevel: 60,
   playerCoordinates: {
-    x: MAP_HEIGHT/2,
-    y: MAP_WIDTH/2
+    row: playerStartingRow,
+    col: playerStartingCol
   },
   currentDungeon: 0
 }
@@ -32,43 +35,47 @@ export default function Dungeon(state=initialState, action) {
     }
 
     case DungeonActionTypes.MOVE: {
-      
-      let newX;
-      let newY;
+      let newRow;
+      let newCol;
       switch(action.direction) {
         case "Up":
-          newX = state.playerCoordinates.x - 1;
-          newY = state.playerCoordinates.y;
+          newRow = state.playerCoordinates.row - 1;
+          newCol = state.playerCoordinates.col;
           break;
 
         case "Right":
-          newX = state.playerCoordinates.x;
-          newY = state.playerCoordinates.y + 1;
+          newRow = state.playerCoordinates.row;
+          newCol = state.playerCoordinates.col + 1;
           break;
 
         case "Down":
-          newX = state.playerCoordinates.x + 1;
-          newY = state.playerCoordinates.y;
+          newRow = state.playerCoordinates.row + 1;
+          newCol = state.playerCoordinates.col;
           break;
 
         case "Left":
-          newX = state.playerCoordinates.x;
-          newY = state.playerCoordinates.y - 1;
+          newRow = state.playerCoordinates.row;
+          newCol = state.playerCoordinates.col - 1;
           break;
-          
+
         default:
           return state;
       }
+      let newPlayerHealth = state.playerHealth;
+      if (state.map[newRow][newCol] == 2) {
+        newPlayerHealth += 20; 
+      }
       let newMap = [...state.map];
-      newMap[state.playerCoordinates.x][state.playerCoordinates.y] = 0;
-      newMap[newX][newY] = 1;
+      newMap[state.playerCoordinates.row][state.playerCoordinates.col] = 0;
+      newMap[newRow][newCol] = 1;
       return {
         ...state,
         map: newMap,
         playerCoordinates: {
-          x: newX,
-          y: newY
-        }
+          row: newRow,
+          col: newCol
+        },
+        playerHealth: newPlayerHealth
       }
     }
 
