@@ -10,6 +10,14 @@
   outline: .5px solid #ccc;
 }
 
+[class*="block-value-"] {
+  background-color: crimson;
+}
+
+.block-value-0 {
+  background-color: white;
+}
+
 .block-value-1 {
   background-color: blue;
 }
@@ -17,3 +25,8 @@
 .block-value-2 {
   background-color: green;
 }
+
+.block-value-3 {
+  background-color: gold;
+}
+
