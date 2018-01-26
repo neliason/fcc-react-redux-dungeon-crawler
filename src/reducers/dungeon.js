@@ -5,12 +5,15 @@ const MAP_HEIGHT = 30;
 const ENEMY_ZERO_HEALTH = 3;
 const PLAYER_STARTING_ROW = MAP_HEIGHT/2;
 const PLAYER_STARTING_COL = MAP_WIDTH/2;
+const NUM_ENEMIES = 4;
 
-const BLOCK = {
-  empty: 0,
-  player: 1,
-  health: 2,
-  weapon: 3
+const Block = {
+  EMPTY: 0,
+  PLAYER: 1,
+  HEALTH: 2,
+  WEAPON: 3,
+  WALL: 2000,
+  ENEMY_LVL_1: 40
 }
 
 const WEAPONS = {
@@ -21,6 +24,8 @@ const WEAPONS = {
   4: "Battle Axe"
 }
 
+var playerStartingCol = 0;
+var playerStartingRow = 0;
 function generateInitialMap() {
   let initialMap = new Array(MAP_HEIGHT);
   for (let i = 0; i < MAP_HEIGHT; i++) {
@@ -29,12 +34,34 @@ function generateInitialMap() {
       initialMap[i][j] = 0;
     }
   }
-  initialMap[PLAYER_STARTING_ROW][PLAYER_STARTING_COL] = BLOCK.player;
-  initialMap[PLAYER_STARTING_ROW-2][PLAYER_STARTING_COL] = BLOCK.health;
-  initialMap[PLAYER_STARTING_ROW+2][PLAYER_STARTING_COL] = BLOCK.weapon;
-  initialMap[PLAYER_STARTING_ROW][PLAYER_STARTING_COL-2] = 40;
-  initialMap[PLAYER_STARTING_ROW][PLAYER_STARTING_COL+2] = 40;
+  initialMap[0][0] = Block.WALL;
+
+  //while(initialMap[playerStartingRow][playerStartingCol] !== Block.EMPTY) {
+    playerStartingRow = Math.floor(Math.random() * Math.floor(MAP_HEIGHT));
+    playerStartingCol = Math.floor(Math.random() * Math.floor(MAP_WIDTH));
+    initialMap[playerStartingRow][playerStartingCol] = Block.PLAYER;
+  //}
+
+  randomPlaceBlock(initialMap, Block.HEALTH);
+  randomPlaceBlock(initialMap, Block.WEAPON);
+  for(let i = 0; i < NUM_ENEMIES; i++) {
+    randomPlaceBlock(initialMap, Block.ENEMY_LVL_1);
+  }
   return initialMap;
+}
+
+function randomPlaceBlock(map, blockType) {
+  let startingRow = 0;
+  let startingCol = 0;
+  let placed = false;
+  while(!placed) {
+    startingRow = Math.floor(Math.random() * Math.floor(MAP_HEIGHT));
+    startingCol = Math.floor(Math.random() * Math.floor(MAP_WIDTH));
+    if(map[startingRow][startingCol] === Block.EMPTY) {
+      map[startingRow][startingCol] = blockType;
+      placed = true;
+    }
+  }
 }
 
 const initialState = {
@@ -46,12 +73,11 @@ const initialState = {
   playerLevel: 1,
   playerXPToNextLevel: 20,
   playerCoordinates: {
-    row: PLAYER_STARTING_ROW,
-    col: PLAYER_STARTING_COL
+    row: playerStartingRow,
+    col: playerStartingCol
   },
   currentDungeon: 0
 }
-Object.freeze(initialState);
 
 export default function Dungeon(state=initialState, action) {
   switch(action.type) {
@@ -87,6 +113,10 @@ export default function Dungeon(state=initialState, action) {
           return state;
       }
 
+      const outOfBounds = (newRow < 0 || newCol < 0 || newRow >= MAP_HEIGHT || newCol >= MAP_WIDTH)
+      if(outOfBounds)
+        return state;
+
       let newMap = [...state.map];
       let newPlayerHealth = state.playerHealth;
       let newWeaponLevel = state.weaponLevel;
@@ -96,17 +126,20 @@ export default function Dungeon(state=initialState, action) {
       
       switch(state.map[newRow][newCol]) {
         
-        case BLOCK.empty:
+        case Block.EMPTY:
           break;
 
-        case BLOCK.health:
+        case Block.HEALTH:
           newPlayerHealth += 20;
           break;
 
-        case BLOCK.weapon:
+        case Block.WEAPON:
           newWeaponLevel += newWeaponLevel < 5 ? 1 : 0;
           newPlayerAttack += 7;
           break;
+
+        case Block.WALL:
+          return state;
         
         default: //enemy
           let enemyHealth = state.map[newRow][newCol];
@@ -133,8 +166,8 @@ export default function Dungeon(state=initialState, action) {
           break;
         }
       
-      newMap[state.playerCoordinates.row][state.playerCoordinates.col] = 0;
-      newMap[newRow][newCol] = 1;
+      newMap[state.playerCoordinates.row][state.playerCoordinates.col] = Block.EMPTY;
+      newMap[newRow][newCol] = Block.PLAYER;
       return {
         ...state,
         map: newMap,
