@@ -2,28 +2,18 @@ import * as DungeonActionTypes from '../actiontypes/dungeon';
 
 const MAP_WIDTH = 50;
 const MAP_HEIGHT = 30;
-let initialMap = new Array(MAP_HEIGHT);
-for (let i = 0; i < MAP_HEIGHT; i++) {
-  initialMap[i] = new Array(MAP_WIDTH);
-  for (let j = 0; j < MAP_WIDTH; j++) {
-    initialMap[i][j] = 0;
-  }
-}
-
-const enemy = {
-  health: 20
-}
-
-const playerStartingRow = MAP_HEIGHT/2;
-const playerStartingCol = MAP_WIDTH/2;
-initialMap[playerStartingRow][playerStartingCol] = 1;
-initialMap[playerStartingRow-2][playerStartingCol] = 2;
-initialMap[playerStartingRow+2][playerStartingCol] = 3;
-initialMap[playerStartingRow][playerStartingCol-2] = 40;
-
 const ENEMY_ZERO_HEALTH = 3;
+const PLAYER_STARTING_ROW = MAP_HEIGHT/2;
+const PLAYER_STARTING_COL = MAP_WIDTH/2;
 
-const weapons = {
+const BLOCK = {
+  empty: 0,
+  player: 1,
+  health: 2,
+  weapon: 3
+}
+
+const WEAPONS = {
   0: "Hands",
   1: "Knife",
   2: "Mace",
@@ -31,20 +21,37 @@ const weapons = {
   4: "Battle Axe"
 }
 
+function generateInitialMap() {
+  let initialMap = new Array(MAP_HEIGHT);
+  for (let i = 0; i < MAP_HEIGHT; i++) {
+    initialMap[i] = new Array(MAP_WIDTH);
+    for (let j = 0; j < MAP_WIDTH; j++) {
+      initialMap[i][j] = 0;
+    }
+  }
+  initialMap[PLAYER_STARTING_ROW][PLAYER_STARTING_COL] = BLOCK.player;
+  initialMap[PLAYER_STARTING_ROW-2][PLAYER_STARTING_COL] = BLOCK.health;
+  initialMap[PLAYER_STARTING_ROW+2][PLAYER_STARTING_COL] = BLOCK.weapon;
+  initialMap[PLAYER_STARTING_ROW][PLAYER_STARTING_COL-2] = 40;
+  initialMap[PLAYER_STARTING_ROW][PLAYER_STARTING_COL+2] = 40;
+  return initialMap;
+}
+
 const initialState = {
-  map: initialMap,
-  playerHealth: 100,
+  map: generateInitialMap(),
+  playerHealth: 25,
   weaponLevel: 0,
-  playerWeapon: weapons[0],
+  playerWeapon: WEAPONS[0],
   playerAttack: 3,
   playerLevel: 1,
   playerXPToNextLevel: 20,
   playerCoordinates: {
-    row: playerStartingRow,
-    col: playerStartingCol
+    row: PLAYER_STARTING_ROW,
+    col: PLAYER_STARTING_COL
   },
   currentDungeon: 0
 }
+Object.freeze(initialState);
 
 export default function Dungeon(state=initialState, action) {
   switch(action.type) {
@@ -86,16 +93,17 @@ export default function Dungeon(state=initialState, action) {
       let newPlayerAttack = state.playerAttack;
       let newplayerXPToNextLevel = state.playerXPToNextLevel;
       let newPlayerLevel = state.playerLevel;
+      
       switch(state.map[newRow][newCol]) {
         
-        case 0:
+        case BLOCK.empty:
           break;
 
-        case 2:
+        case BLOCK.health:
           newPlayerHealth += 20;
           break;
 
-        case 3:
+        case BLOCK.weapon:
           newWeaponLevel += newWeaponLevel < 5 ? 1 : 0;
           newPlayerAttack += 7;
           break;
@@ -112,12 +120,18 @@ export default function Dungeon(state=initialState, action) {
             }
           } else {
             newPlayerHealth -= 10 * (state.currentDungeon + 1);
+            if (newPlayerHealth <= 0) {
+              return {
+                ...initialState,
+                map: generateInitialMap()
+              }
+            }
             newMap[newRow][newCol] = enemyHealth;
             newRow = state.playerCoordinates.row;
             newCol = state.playerCoordinates.col;
           }
           break;
-      }
+        }
       
       newMap[state.playerCoordinates.row][state.playerCoordinates.col] = 0;
       newMap[newRow][newCol] = 1;
@@ -130,7 +144,7 @@ export default function Dungeon(state=initialState, action) {
         },
         playerHealth: newPlayerHealth,
         weaponLevel: newWeaponLevel,
-        playerWeapon: weapons[newWeaponLevel],
+        playerWeapon: WEAPONS[newWeaponLevel],
         playerAttack: newPlayerAttack,
         playerXPToNextLevel: newplayerXPToNextLevel,
       }
