@@ -2,7 +2,7 @@ import * as DungeonActionTypes from '../actiontypes/dungeon';
 
 const MAP_WIDTH = 50;
 const MAP_HEIGHT = 30;
-const ENEMY_ZERO_HEALTH = 3;
+const ENEMY_ZERO_HEALTH = 4;
 const NUM_ENEMIES = 4;
 
 const Block = {
@@ -10,7 +10,7 @@ const Block = {
   PLAYER: 1,
   HEALTH: 2,
   WEAPON: 3,
-  WALL: 2000,
+  WALL: 4,
   ENEMY_LVL_1: 40
 }
 
@@ -43,6 +43,10 @@ function generateInitialMapAndPlayerCoordinates() {
   }
 
   return [initialMap, playerStartingRow, playerStartingCol];
+}
+
+function getRandomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 function randomPlaceBlock(map, blockType) {
@@ -140,16 +144,17 @@ export default function Dungeon(state=initialState, action) {
         
         default: //enemy
           let enemyHealth = state.map[newRow][newCol];
-          enemyHealth -= state.playerAttack;
+          enemyHealth -= getRandomInt(state.playerAttack-1, state.playerAttack+1);
+          console.log(enemyHealth);
           if(enemyHealth <= ENEMY_ZERO_HEALTH) {
             newplayerXPToNextLevel -= 20 * (state.currentDungeon + 1);
-            if(newplayerXPToNextLevel <= 0) {
+            if(newplayerXPToNextLevel <= 0) { //TODO: account for rollover
               newPlayerLevel += 1;
               newPlayerAttack += 10;
               newplayerXPToNextLevel = newPlayerLevel * 60;
             }
           } else {
-            newPlayerHealth -= 10 * (state.currentDungeon + 1);
+            newPlayerHealth -= getRandomInt(10*(state.currentDungeon+1)-1, 10*(state.currentDungeon+1)+1);
             if (newPlayerHealth <= 0) {
               const mapAndPos = generateInitialMapAndPlayerCoordinates();
               return {
@@ -182,6 +187,7 @@ export default function Dungeon(state=initialState, action) {
         playerWeapon: WEAPONS[newWeaponLevel],
         playerAttack: newPlayerAttack,
         playerXPToNextLevel: newplayerXPToNextLevel,
+        playerLevel: newPlayerLevel,
       }
     }
 

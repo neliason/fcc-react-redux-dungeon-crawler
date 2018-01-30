@@ -12,7 +12,8 @@ class App extends Component {
     playerWeapon: PropTypes.string.isRequired,
     playerAttack: PropTypes.number.isRequired,
     playerXPToNextLevel: PropTypes.number.isRequired,
-    currentDungeon: PropTypes.number.isRequired
+    currentDungeon: PropTypes.number.isRequired,
+    playerLevel: PropTypes.number.isRequired
   };
 
   componentWillMount() {
@@ -39,6 +40,7 @@ class App extends Component {
           playerAttack={this.props.playerAttack}
           playerXPToNextLevel={this.props.playerXPToNextLevel}
           currentDungeon={this.props.currentDungeon}
+          playerLevel={this.props.playerLevel}
         />
         <div className="map">
           {this.props.map.map((row, rowIndex) => {
@@ -66,6 +68,7 @@ const mapStateToProps = (state) => {
     playerAttack: state.playerAttack,
     playerXPToNextLevel: state.playerXPToNextLevel,
     currentDungeon: state.currentDungeon,
+    playerLevel: state.playerLevel
   }
 };
 
