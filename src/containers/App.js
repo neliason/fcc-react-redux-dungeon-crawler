@@ -5,6 +5,8 @@ import * as DungeonActionCreators from '../actions/dungeon'
 import '../App.css';
 import StatsPanel from '../components/StatsPanel'
 
+const SIGHT_RANGE = 4;
+
 class App extends Component {
 
   static propTypes = {
@@ -48,7 +50,17 @@ class App extends Component {
               <div key={rowIndex} className="map-row">
                 {row.map((block, colIndex) => {
                   return(
-                    <span className={`block block-value-${block}`} key={colIndex} />
+                    <span>
+                      {
+                        (rowIndex < this.props.playerCoordinates.row - SIGHT_RANGE 
+                          || rowIndex > this.props.playerCoordinates.row + SIGHT_RANGE 
+                          || colIndex > this.props.playerCoordinates.col + SIGHT_RANGE
+                          || colIndex < this.props.playerCoordinates.col - SIGHT_RANGE 
+                        )
+                          ? <span className={`block blackout block-value-${block}`} key={colIndex} />
+                          : <span className={`block block-value-${block}`} key={colIndex} />
+                      }
+                    </span>
                   );
                 })}
               </div>
@@ -68,7 +80,8 @@ const mapStateToProps = (state) => {
     playerAttack: state.playerAttack,
     playerXPToNextLevel: state.playerXPToNextLevel,
     currentDungeon: state.currentDungeon,
-    playerLevel: state.playerLevel
+    playerLevel: state.playerLevel,
+    playerCoordinates: state.playerCoordinates
   }
 };
 

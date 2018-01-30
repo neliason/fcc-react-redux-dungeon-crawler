@@ -65,6 +65,7 @@ function randomPlaceBlock(map, blockType) {
 }
 
 const initialMapAndPlayerCoordinates = generateInitialMapAndPlayerCoordinates();
+
 const initialState = {
   map: initialMapAndPlayerCoordinates[0],
   playerHealth: 25,
