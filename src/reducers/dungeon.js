@@ -3,8 +3,6 @@ import * as DungeonActionTypes from '../actiontypes/dungeon';
 const MAP_WIDTH = 50;
 const MAP_HEIGHT = 30;
 const ENEMY_ZERO_HEALTH = 3;
-const PLAYER_STARTING_ROW = MAP_HEIGHT/2;
-const PLAYER_STARTING_COL = MAP_WIDTH/2;
 const NUM_ENEMIES = 4;
 
 const Block = {
@@ -24,9 +22,7 @@ const WEAPONS = {
   4: "Battle Axe"
 }
 
-var playerStartingCol = 0;
-var playerStartingRow = 0;
-function generateInitialMap() {
+function generateInitialMapAndPlayerCoordinates() {
   let initialMap = new Array(MAP_HEIGHT);
   for (let i = 0; i < MAP_HEIGHT; i++) {
     initialMap[i] = new Array(MAP_WIDTH);
@@ -36,18 +32,17 @@ function generateInitialMap() {
   }
   initialMap[0][0] = Block.WALL;
 
-  //while(initialMap[playerStartingRow][playerStartingCol] !== Block.EMPTY) {
-    playerStartingRow = Math.floor(Math.random() * Math.floor(MAP_HEIGHT));
-    playerStartingCol = Math.floor(Math.random() * Math.floor(MAP_WIDTH));
-    initialMap[playerStartingRow][playerStartingCol] = Block.PLAYER;
-  //}
-
+  const playerStartingCoordinates = randomPlaceBlock(initialMap, Block.PLAYER);
+  const playerStartingRow = playerStartingCoordinates[0];
+  const playerStartingCol = playerStartingCoordinates[1];
+  
   randomPlaceBlock(initialMap, Block.HEALTH);
   randomPlaceBlock(initialMap, Block.WEAPON);
   for(let i = 0; i < NUM_ENEMIES; i++) {
     randomPlaceBlock(initialMap, Block.ENEMY_LVL_1);
   }
-  return initialMap;
+
+  return [initialMap, playerStartingRow, playerStartingCol];
 }
 
 function randomPlaceBlock(map, blockType) {
@@ -62,10 +57,12 @@ function randomPlaceBlock(map, blockType) {
       placed = true;
     }
   }
+  return [startingRow, startingCol];
 }
 
+const initialMapAndPlayerCoordinates = generateInitialMapAndPlayerCoordinates();
 const initialState = {
-  map: generateInitialMap(),
+  map: initialMapAndPlayerCoordinates[0],
   playerHealth: 25,
   weaponLevel: 0,
   playerWeapon: WEAPONS[0],
@@ -73,8 +70,8 @@ const initialState = {
   playerLevel: 1,
   playerXPToNextLevel: 20,
   playerCoordinates: {
-    row: playerStartingRow,
-    col: playerStartingCol
+    row: initialMapAndPlayerCoordinates[1],
+    col: initialMapAndPlayerCoordinates[2]
   },
   currentDungeon: 0
 }
@@ -117,7 +114,7 @@ export default function Dungeon(state=initialState, action) {
       if(outOfBounds)
         return state;
 
-      let newMap = [...state.map];
+      let newMap = [...state.map]; 
       let newPlayerHealth = state.playerHealth;
       let newWeaponLevel = state.weaponLevel;
       let newPlayerAttack = state.playerAttack;
@@ -154,9 +151,14 @@ export default function Dungeon(state=initialState, action) {
           } else {
             newPlayerHealth -= 10 * (state.currentDungeon + 1);
             if (newPlayerHealth <= 0) {
+              const mapAndPos = generateInitialMapAndPlayerCoordinates();
               return {
                 ...initialState,
-                map: generateInitialMap()
+                map: mapAndPos[0],
+                playerCoordinates: {
+                  row: mapAndPos[1],
+                  col: mapAndPos[2]
+                }
               }
             }
             newMap[newRow][newCol] = enemyHealth;
