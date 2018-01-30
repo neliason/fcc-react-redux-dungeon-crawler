@@ -52,12 +52,13 @@ class App extends Component {
                   return(
                     <span>
                       {
-                        (rowIndex < this.props.playerCoordinates.row - SIGHT_RANGE 
+                        (
+                          rowIndex < this.props.playerCoordinates.row - SIGHT_RANGE 
                           || rowIndex > this.props.playerCoordinates.row + SIGHT_RANGE 
-                          || colIndex > this.props.playerCoordinates.col + SIGHT_RANGE
                           || colIndex < this.props.playerCoordinates.col - SIGHT_RANGE 
+                          || colIndex > this.props.playerCoordinates.col + SIGHT_RANGE
                         )
-                          ? <span className={`block blackout block-value-${block}`} key={colIndex} />
+                          ? <span className={`block block-value-${block}`} key={colIndex} />
                           : <span className={`block block-value-${block}`} key={colIndex} />
                       }
                     </span>

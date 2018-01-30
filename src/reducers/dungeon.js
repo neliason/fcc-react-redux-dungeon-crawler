@@ -11,7 +11,8 @@ const Block = {
   HEALTH: 2,
   WEAPON: 3,
   WALL: 4,
-  ENEMY_LVL_1: 40
+  ENEMY_LVL_1: 40,
+  BOSS: 1000
 }
 
 const WEAPONS = {
@@ -41,8 +42,21 @@ function generateInitialMapAndPlayerCoordinates() {
   for(let i = 0; i < NUM_ENEMIES; i++) {
     randomPlaceBlock(initialMap, Block.ENEMY_LVL_1);
   }
+  randomPlaceBlock(initialMap, Block.BOSS)
 
   return [initialMap, playerStartingRow, playerStartingCol];
+}
+
+function getNewMap() {
+  const mapAndPos = generateInitialMapAndPlayerCoordinates();
+  return {
+    ...initialState,
+    map: mapAndPos[0],
+    playerCoordinates: {
+      row: mapAndPos[1],
+      col: mapAndPos[2]
+    }
+  }
 }
 
 function getRandomInt(min, max) {
@@ -145,27 +159,27 @@ export default function Dungeon(state=initialState, action) {
         
         default: //enemy
           let enemyHealth = state.map[newRow][newCol];
+          const isBoss = enemyHealth === Block.BOSS;
           enemyHealth -= getRandomInt(state.playerAttack-1, state.playerAttack+1);
           console.log(enemyHealth);
           if(enemyHealth <= ENEMY_ZERO_HEALTH) {
-            newplayerXPToNextLevel -= 20 * (state.currentDungeon + 1);
-            if(newplayerXPToNextLevel <= 0) { //TODO: account for rollover
-              newPlayerLevel += 1;
-              newPlayerAttack += 10;
-              newplayerXPToNextLevel = newPlayerLevel * 60;
+            if(isBoss) {
+              alert("You beat the boss. You Won!");
+              return getNewMap();
+            } else {
+              newplayerXPToNextLevel -= 20 * (state.currentDungeon + 1);
+              if(newplayerXPToNextLevel <= 0) { //TODO: account for rollover
+                newPlayerLevel += 1;
+                newPlayerAttack += 10;
+                newplayerXPToNextLevel = newPlayerLevel * 60;
+              }
             }
           } else {
-            newPlayerHealth -= getRandomInt(10*(state.currentDungeon+1)-1, 10*(state.currentDungeon+1)+1);
+            newPlayerHealth -= isBoss ? getRandomInt(45,55) : getRandomInt(10*(state.currentDungeon+1)-1, 10*(state.currentDungeon+1)+1);
             if (newPlayerHealth <= 0) {
+              alert("You Died!");
               const mapAndPos = generateInitialMapAndPlayerCoordinates();
-              return {
-                ...initialState,
-                map: mapAndPos[0],
-                playerCoordinates: {
-                  row: mapAndPos[1],
-                  col: mapAndPos[2]
-                }
-              }
+              return getNewMap();
             }
             newMap[newRow][newCol] = enemyHealth;
             newRow = state.playerCoordinates.row;
