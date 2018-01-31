@@ -2,8 +2,9 @@ import * as DungeonActionTypes from '../actiontypes/dungeon';
 
 const MAP_WIDTH = 50;
 const MAP_HEIGHT = 30;
-const ENEMY_ZERO_HEALTH = 4;
+const ENEMY_ZERO_HEALTH = 5;
 const NUM_ENEMIES = 4;
+const NUM_HEALTH = 4;
 
 const Block = {
   EMPTY: 0,
@@ -11,7 +12,8 @@ const Block = {
   HEALTH: 2,
   WEAPON: 3,
   WALL: 4,
-  ENEMY_LVL_1: 40,
+  PORTAL: 5,
+  ENEMY: 40,
   BOSS: 1000
 }
 
@@ -23,7 +25,7 @@ const WEAPONS = {
   4: "Battle Axe"
 }
 
-function generateInitialMapAndPlayerCoordinates() {
+function generateMapAndPlayerCoordinates(currentDungeon) {
   let initialMap = new Array(MAP_HEIGHT);
   for (let i = 0; i < MAP_HEIGHT; i++) {
     initialMap[i] = new Array(MAP_WIDTH);
@@ -31,24 +33,36 @@ function generateInitialMapAndPlayerCoordinates() {
       initialMap[i][j] = 0;
     }
   }
-  initialMap[0][0] = Block.WALL;
+  initialMap[0] = initialMap[0].map(square => {
+    return Block.WALL;
+  });
+  initialMap[MAP_HEIGHT-1] = initialMap[MAP_HEIGHT-1].map(square => {
+    return Block.WALL;
+  });
+  initialMap.forEach(row => {
+    row[0] = Block.WALL;
+    row[MAP_WIDTH-1] = Block.WALL;
+  });
 
   const playerStartingCoordinates = randomPlaceBlock(initialMap, Block.PLAYER);
   const playerStartingRow = playerStartingCoordinates[0];
   const playerStartingCol = playerStartingCoordinates[1];
   
-  randomPlaceBlock(initialMap, Block.HEALTH);
   randomPlaceBlock(initialMap, Block.WEAPON);
-  for(let i = 0; i < NUM_ENEMIES; i++) {
-    randomPlaceBlock(initialMap, Block.ENEMY_LVL_1);
+  for(let i = 0; i < NUM_HEALTH; i++) {
+    randomPlaceBlock(initialMap, Block.HEALTH);
   }
-  randomPlaceBlock(initialMap, Block.BOSS)
+  for(let i = 0; i < NUM_ENEMIES; i++) {
+    randomPlaceBlock(initialMap, Block.ENEMY * (currentDungeon+1));
+  }
+  currentDungeon === 3 ? randomPlaceBlock(initialMap, Block.BOSS) : randomPlaceBlock(initialMap, Block.PORTAL);
+  
 
   return [initialMap, playerStartingRow, playerStartingCol];
 }
 
 function getNewMap() {
-  const mapAndPos = generateInitialMapAndPlayerCoordinates();
+  const mapAndPos = generateMapAndPlayerCoordinates(0);
   return {
     ...initialState,
     map: mapAndPos[0],
@@ -78,11 +92,11 @@ function randomPlaceBlock(map, blockType) {
   return [startingRow, startingCol];
 }
 
-const initialMapAndPlayerCoordinates = generateInitialMapAndPlayerCoordinates();
+const initialMapAndPlayerCoordinates = generateMapAndPlayerCoordinates(0);
 
 const initialState = {
   map: initialMapAndPlayerCoordinates[0],
-  playerHealth: 25,
+  playerHealth: 100,
   weaponLevel: 0,
   playerWeapon: WEAPONS[0],
   playerAttack: 3,
@@ -156,6 +170,20 @@ export default function Dungeon(state=initialState, action) {
 
         case Block.WALL:
           return state;
+
+        case Block.PORTAL:
+          const newDungeon = state.currentDungeon + 1;
+          const mapAndPos = generateMapAndPlayerCoordinates(newDungeon);
+          return {
+            ...state,
+            map: mapAndPos[0],
+            playerCoordinates: {
+              row: mapAndPos[1],
+              col: mapAndPos[2]
+            },
+            currentDungeon: newDungeon
+          }
+          break;
         
         default: //enemy
           let enemyHealth = state.map[newRow][newCol];
@@ -178,7 +206,7 @@ export default function Dungeon(state=initialState, action) {
             newPlayerHealth -= isBoss ? getRandomInt(45,55) : getRandomInt(10*(state.currentDungeon+1)-1, 10*(state.currentDungeon+1)+1);
             if (newPlayerHealth <= 0) {
               alert("You Died!");
-              const mapAndPos = generateInitialMapAndPlayerCoordinates();
+              const mapAndPos = generateMapAndPlayerCoordinates(0);
               return getNewMap();
             }
             newMap[newRow][newCol] = enemyHealth;
