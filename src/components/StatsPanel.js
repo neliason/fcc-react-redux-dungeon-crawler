@@ -2,21 +2,24 @@ import React from "react";
 import PropTypes from "prop-types";
 
 const StatsPanel = props =>
-  <div className="stats-panel row">
-    <div className="col-xs-3">
+  <div className="stats-panel">
+    <div>
       Health: {props.playerHealth}
     </div>
-    <div className="col-xs-2">
+    <div>
       Weapon: {props.playerWeapon}
     </div>
-    <div className="col-xs-2">
+    <div>
       Attack: {props.playerAttack}
     </div>
-    <div className="col-xs-2">
+    <div>
       Level: {props.playerLevel}
     </div>
-    <div className="col-xs-3">
+    <div>
       Next Level: {props.playerXPToNextLevel} XP
+    </div>
+    <div>
+      Dungeon: {props.currentDungeon}
     </div>
   </div>
 

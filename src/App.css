@@ -2,12 +2,29 @@
   text-align: center;
 }
 
+.title {
+  font-size: 38px;
+}
+
+.stats-panel {
+  margin: 10px;
+  display: flex;
+  justify-content: space-evenly;
+}
+
+.map {
+  margin-top: 20px;
+}
+
+.map-row {
+  margin: -5px;
+}
+
 .block {
   display: inline-block;
   width: 15px;
   height: 15px;
   font-size: 12px;
-  outline: .5px solid #ccc;
 }
 
 [class*="block-value-"] {
@@ -32,6 +49,10 @@
 
 .block-value-4 {
   background-color: gray;
+}
+
+.block-value-5 {
+  background-color: purple;
 }
 
 .block-value-1000 {

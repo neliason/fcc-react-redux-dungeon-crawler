@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import * as DungeonActionCreators from '../actions/dungeon'
+import * as DungeonActionCreators from '../actions/dungeon';
 import '../App.css';
-import StatsPanel from '../components/StatsPanel'
+import StatsPanel from '../components/StatsPanel';
+import Title from '../components/Title';
 
 const SIGHT_RANGE = 4;
 
@@ -36,6 +37,9 @@ class App extends Component {
   render() {
     return (
       <div className="App">
+        <Title 
+          title="Dungeon Crawler"
+        />
         <StatsPanel 
           playerHealth={this.props.playerHealth}
           playerWeapon={this.props.playerWeapon}
