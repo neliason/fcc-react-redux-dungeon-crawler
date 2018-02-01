@@ -1,2 +1,2 @@
 export const MOVE = 'dungeon/MOVE';
-export const ATTACK = 'dungeon/ATTACK';
+export const TOGGLE_LIGHTS = 'dungeon/TOGGLE_LIGHTS';

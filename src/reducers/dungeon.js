@@ -14,7 +14,7 @@ const Block = {
   WALL: 4,
   PORTAL: 5,
   ENEMY: 40,
-  BOSS: 1000
+  BOSS: 750
 }
 
 const WEAPONS = {
@@ -61,7 +61,7 @@ function generateMapAndPlayerCoordinates(currentDungeon) {
   return [initialMap, playerStartingRow, playerStartingCol];
 }
 
-function getNewMap() {
+function resetMap() {
   const mapAndPos = generateMapAndPlayerCoordinates(0);
   return {
     ...initialState,
@@ -106,13 +106,17 @@ const initialState = {
     row: initialMapAndPlayerCoordinates[1],
     col: initialMapAndPlayerCoordinates[2]
   },
-  currentDungeon: 0
+  currentDungeon: 0,
+  lightsOn: false
 }
 
 export default function Dungeon(state=initialState, action) {
   switch(action.type) {
-    case DungeonActionTypes.ATTACK: {
-      return state;
+    case DungeonActionTypes.TOGGLE_LIGHTS: {
+      return {
+        ...state,
+        lightsOn: !state.lightsOn
+      };
     }
 
     case DungeonActionTypes.MOVE: {
@@ -183,7 +187,6 @@ export default function Dungeon(state=initialState, action) {
             },
             currentDungeon: newDungeon
           }
-          break;
         
         default: //enemy
           let enemyHealth = state.map[newRow][newCol];
@@ -193,7 +196,7 @@ export default function Dungeon(state=initialState, action) {
           if(enemyHealth <= ENEMY_ZERO_HEALTH) {
             if(isBoss) {
               alert("You beat the boss. You Won!");
-              return getNewMap();
+              return resetMap();
             } else {
               newplayerXPToNextLevel -= 20 * (state.currentDungeon + 1);
               if(newplayerXPToNextLevel <= 0) { //TODO: account for rollover
@@ -206,8 +209,7 @@ export default function Dungeon(state=initialState, action) {
             newPlayerHealth -= isBoss ? getRandomInt(45,55) : getRandomInt(10*(state.currentDungeon+1)-1, 10*(state.currentDungeon+1)+1);
             if (newPlayerHealth <= 0) {
               alert("You Died!");
-              const mapAndPos = generateMapAndPlayerCoordinates(0);
-              return getNewMap();
+              return resetMap();
             }
             newMap[newRow][newCol] = enemyHealth;
             newRow = state.playerCoordinates.row;

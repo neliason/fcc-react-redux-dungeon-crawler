@@ -47,6 +47,7 @@ class App extends Component {
           playerXPToNextLevel={this.props.playerXPToNextLevel}
           currentDungeon={this.props.currentDungeon}
           playerLevel={this.props.playerLevel}
+          toggleLights={this.props.toggleLights}
         />
         <div className="map">
           {this.props.map.map((row, rowIndex) => {
@@ -56,13 +57,13 @@ class App extends Component {
                   return(
                     <span>
                       {
-                        (
-                          rowIndex < this.props.playerCoordinates.row - SIGHT_RANGE 
+                        ( !this.props.lightsOn &&
+                          (rowIndex < this.props.playerCoordinates.row - SIGHT_RANGE 
                           || rowIndex > this.props.playerCoordinates.row + SIGHT_RANGE 
                           || colIndex < this.props.playerCoordinates.col - SIGHT_RANGE 
-                          || colIndex > this.props.playerCoordinates.col + SIGHT_RANGE
+                          || colIndex > this.props.playerCoordinates.col + SIGHT_RANGE)
                         )
-                          ? <span className={`block block-value-${block}`} key={colIndex} />
+                          ? <span className={`block blackout block-value-${block}`} key={colIndex} />
                           : <span className={`block block-value-${block}`} key={colIndex} />
                       }
                     </span>
@@ -86,14 +87,15 @@ const mapStateToProps = (state) => {
     playerXPToNextLevel: state.playerXPToNextLevel,
     currentDungeon: state.currentDungeon,
     playerLevel: state.playerLevel,
-    playerCoordinates: state.playerCoordinates
+    playerCoordinates: state.playerCoordinates,
+    lightsOn: state.lightsOn
   }
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    attack: () => {
-      dispatch(DungeonActionCreators.attack())
+    toggleLights: () => {
+      dispatch(DungeonActionCreators.toggleLights())
     },
     move: (direction) => {
       dispatch(DungeonActionCreators.move(direction))

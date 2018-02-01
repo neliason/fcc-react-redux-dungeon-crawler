@@ -7,8 +7,8 @@ export const move = (direction) => {
   }
 }
 
-export const attack = () => {
+export const toggleLights = () => {
   return {
-    type: DungeonActionTypes.ATTACK
+    type: DungeonActionTypes.TOGGLE_LIGHTS
   };
 };

@@ -21,6 +21,7 @@ const StatsPanel = props =>
     <div>
       Dungeon: {props.currentDungeon}
     </div>
+    <button className="light-btn btn btn-default" onClick={props.toggleLights}>Toggle Lights</button>
   </div>
 
 StatsPanel.proptypes = {
@@ -29,7 +30,8 @@ StatsPanel.proptypes = {
   playerAttack: PropTypes.number.isRequired,
   playerXPToNextLevel: PropTypes.number.isRequired,
   currentDungeon: PropTypes.number.isRequired,
-  playerLevel: PropTypes.number.isRequired
+  playerLevel: PropTypes.number.isRequired,
+  toggleLights: PropTypes.func.isRequired
 }
 
 export default StatsPanel;
