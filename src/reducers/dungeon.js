@@ -13,8 +13,8 @@ const Block = {
   WEAPON: 3,
   WALL: 4,
   PORTAL: 5,
-  ENEMY: 40,
-  BOSS: 750
+  ENEMY: 30,
+  BOSS: 400
 }
 
 const WEAPONS = {
@@ -107,7 +107,8 @@ const initialState = {
     col: initialMapAndPlayerCoordinates[2]
   },
   currentDungeon: 0,
-  lightsOn: false
+  lightsOn: false,
+  bossHealth: Block.BOSS
 }
 
 export default function Dungeon(state=initialState, action) {
@@ -157,6 +158,7 @@ export default function Dungeon(state=initialState, action) {
       let newPlayerAttack = state.playerAttack;
       let newplayerXPToNextLevel = state.playerXPToNextLevel;
       let newPlayerLevel = state.playerLevel;
+      let newBossHealth = state.bossHealth;
       
       switch(state.map[newRow][newCol]) {
         
@@ -187,26 +189,38 @@ export default function Dungeon(state=initialState, action) {
             },
             currentDungeon: newDungeon
           }
+
+        case Block.BOSS:
+          newBossHealth -= getRandomInt(state.playerAttack-1, state.playerAttack+1);
+          console.log("boss:", newBossHealth)
+          if(newBossHealth < ENEMY_ZERO_HEALTH) {
+            alert("You beat the boss. You Won!");
+            return resetMap();
+          } else {
+            newPlayerHealth -= getRandomInt(45,55);
+            if(newPlayerHealth <= 0) {
+              alert("You Died");
+              return resetMap();
+            }
+            newRow = state.playerCoordinates.row;
+            newCol = state.playerCoordinates.col;
+          }
+          break;
         
         default: //enemy
           let enemyHealth = state.map[newRow][newCol];
-          const isBoss = enemyHealth === Block.BOSS;
           enemyHealth -= getRandomInt(state.playerAttack-1, state.playerAttack+1);
           console.log(enemyHealth);
           if(enemyHealth <= ENEMY_ZERO_HEALTH) {
-            if(isBoss) {
-              alert("You beat the boss. You Won!");
-              return resetMap();
-            } else {
-              newplayerXPToNextLevel -= 20 * (state.currentDungeon + 1);
-              if(newplayerXPToNextLevel <= 0) { //TODO: account for rollover
-                newPlayerLevel += 1;
-                newPlayerAttack += 10;
-                newplayerXPToNextLevel = newPlayerLevel * 60;
-              }
+            newplayerXPToNextLevel -= 20 * (state.currentDungeon + 1);
+            if(newplayerXPToNextLevel <= 0) { //TODO: account for rollover
+              newPlayerLevel += 1;
+              newPlayerAttack += 10;
+              newPlayerHealth += 40;
+              newplayerXPToNextLevel = newPlayerLevel * 40;
             }
           } else {
-            newPlayerHealth -= isBoss ? getRandomInt(45,55) : getRandomInt(10*(state.currentDungeon+1)-1, 10*(state.currentDungeon+1)+1);
+            newPlayerHealth -= getRandomInt(10*(state.currentDungeon+1)-1, 10*(state.currentDungeon+1)+1);
             if (newPlayerHealth <= 0) {
               alert("You Died!");
               return resetMap();
@@ -233,6 +247,7 @@ export default function Dungeon(state=initialState, action) {
         playerAttack: newPlayerAttack,
         playerXPToNextLevel: newplayerXPToNextLevel,
         playerLevel: newPlayerLevel,
+        bossHealth: newBossHealth
       }
     }
 
