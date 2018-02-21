@@ -5,11 +5,12 @@ import * as DungeonActionCreators from '../actions/dungeon';
 import '../App.css';
 import StatsPanel from '../components/StatsPanel';
 import Title from '../components/Title';
+import Legend from '../components/Legend';
 
 const SIGHT_RANGE = 4;
 
 class App extends Component {
-
+  
   static propTypes = {
     playerHealth: PropTypes.number.isRequired,
     playerWeapon: PropTypes.string.isRequired,
@@ -49,29 +50,34 @@ class App extends Component {
           playerLevel={this.props.playerLevel}
           toggleLights={this.props.toggleLights}
         />
-        <div className="map">
-          {this.props.map.map((row, rowIndex) => {
-            return(
-              <div key={rowIndex} className="map-row">
-                {row.map((block, colIndex) => {
-                  return(
-                    <span>
-                      {
-                        ( !this.props.lightsOn &&
-                          (rowIndex < this.props.playerCoordinates.row - SIGHT_RANGE 
-                          || rowIndex > this.props.playerCoordinates.row + SIGHT_RANGE 
-                          || colIndex < this.props.playerCoordinates.col - SIGHT_RANGE 
-                          || colIndex > this.props.playerCoordinates.col + SIGHT_RANGE)
-                        )
-                          ? <span className={`block blackout block-value-${block}`} key={colIndex} />
-                          : <span className={`block block-value-${block}`} key={colIndex} />
-                      }
-                    </span>
-                  );
-                })}
-              </div>
-            );
-          })}
+        <div className="container">
+          <div className="map">
+            {this.props.map.map((row, rowIndex) => {
+              return(
+                <div key={rowIndex} className="map-row">
+                  {row.map((block, colIndex) => {
+                    return(
+                      <span key={colIndex}>
+                        {
+                          ( !this.props.lightsOn &&
+                            (rowIndex < this.props.playerCoordinates.row - SIGHT_RANGE 
+                            || rowIndex > this.props.playerCoordinates.row + SIGHT_RANGE 
+                            || colIndex < this.props.playerCoordinates.col - SIGHT_RANGE 
+                            || colIndex > this.props.playerCoordinates.col + SIGHT_RANGE)
+                          )
+                            ? <span className={`block blackout block-value-${block}`} key={colIndex} />
+                            : <span className={`block block-value-${block}`} key={colIndex} />
+                        }
+                      </span>
+                    );
+                  })}
+                </div>
+              );
+            })}
+          </div>
+          <div className="legend">
+            <Legend />
+          </div>
         </div>
       </div>
     );
