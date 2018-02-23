@@ -1,7 +1,7 @@
-import React from "react";
-import PropTypes from "prop-types";
+import React from 'react';
+import PropTypes from 'prop-types';
 
-const StatsPanel = props =>
+const StatsPanel = props => (
   <div className="stats-panel">
     <div>
       Health: {props.playerHealth}
@@ -21,17 +21,20 @@ const StatsPanel = props =>
     <div>
       Dungeon: {props.currentDungeon}
     </div>
-    <button className="light-btn btn btn-default" onClick={props.toggleLights}>Toggle Lights</button>
+    <button className="light-btn btn btn-default" onClick={props.toggleLights}>
+      Toggle Lights
+    </button>
   </div>
+);
 
-StatsPanel.proptypes = {
+StatsPanel.propTypes = {
   playerHealth: PropTypes.number.isRequired,
   playerWeapon: PropTypes.string.isRequired,
   playerAttack: PropTypes.number.isRequired,
   playerXPToNextLevel: PropTypes.number.isRequired,
   currentDungeon: PropTypes.number.isRequired,
   playerLevel: PropTypes.number.isRequired,
-  toggleLights: PropTypes.func.isRequired
-}
+  toggleLights: PropTypes.func.isRequired,
+};
 
 export default StatsPanel;

@@ -30,6 +30,7 @@
   height: auto;
   margin: auto;
   margin-left: 40px;
+  grid-gap: 5px;
 }
 
 .legend-title {
