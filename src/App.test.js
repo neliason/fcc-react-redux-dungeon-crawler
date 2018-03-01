@@ -5,7 +5,7 @@ import ReactDOM from 'react-dom';
 import { App } from './containers/App';
 import * as DungeonActionCreators from './actions/dungeon';
 import * as DungeonActionTypes from './actiontypes/dungeon';
-import reducer from './reducers/dungeon';
+import reducer, { Block, WEAPONS } from './reducers/dungeon';
 
 Enzyme.configure({ adapter: new Adapter() });
 
@@ -17,41 +17,41 @@ describe('dungeon reducer', () => {
     mockStateBlankMap = {
       playerHealth: 100,
       weaponLevel: 0,
-      playerWeapon: 'Hands',
+      playerWeapon: WEAPONS[0],
       playerAttack: 3,
       playerLevel: 1,
       playerXPToNextLevel: 20,
       currentDungeon: 0,
       lightsOn: true,
-      bossHealth: 400,
+      bossHealth: Block.BOSS,
       playerCoordinates: {
         row: 1,
         col: 1,
       },
       map: [
-        [0, 0, 0],
-        [0, 1, 0],
-        [0, 0, 0],
+        [Block.EMPTY, Block.EMPTY, Block.EMPTY],
+        [Block.EMPTY, Block.PLAYER, Block.EMPTY],
+        [Block.EMPTY, Block.EMPTY, Block.EMPTY],
       ],
     };
     mockStateFilledMap = {
       playerHealth: 100,
       weaponLevel: 0,
-      playerWeapon: 'Hands',
+      playerWeapon: WEAPONS[0],
       playerAttack: 3,
       playerLevel: 1,
       playerXPToNextLevel: 20,
       currentDungeon: 0,
       lightsOn: true,
-      bossHealth: 400,
+      bossHealth: Block.BOSS,
       playerCoordinates: {
         row: 1,
         col: 1,
       },
       map: [
-        [0, 3, 0],
-        [2, 1, 5],
-        [0, 30, 0],
+        [Block.EMPTY, Block.WEAPON, Block.EMPTY],
+        [Block.HEALTH, Block.PLAYER, Block.PORTAL],
+        [Block.EMPTY, Block.ENEMY, Block.EMPTY],
       ],
     };
   });
@@ -71,7 +71,13 @@ describe('dungeon reducer', () => {
         row: expect.any(Number),
         col: expect.any(Number),
       },
-      map: expect.arrayContaining([expect.arrayContaining([1]), expect.arrayContaining([2]), expect.arrayContaining([3]), expect.arrayContaining([5]), expect.arrayContaining([30])]),
+      map: expect.arrayContaining([
+        expect.arrayContaining([Block.PLAYER]),
+        expect.arrayContaining([Block.HEALTH]),
+        expect.arrayContaining([Block.WEAPON]),
+        expect.arrayContaining([Block.PORTAL]),
+        expect.arrayContaining([Block.ENEMY]),
+      ]),
     });
   });
 
@@ -86,9 +92,9 @@ describe('dungeon reducer', () => {
         col: 2,
       },
       map: [
-        [0, 0, 0],
-        [0, 0, 1],
-        [0, 0, 0],
+        [Block.EMPTY, Block.EMPTY, Block.EMPTY],
+        [Block.EMPTY, Block.EMPTY, Block.PLAYER],
+        [Block.EMPTY, Block.EMPTY, Block.EMPTY],
       ],
     });
   });
@@ -104,9 +110,9 @@ describe('dungeon reducer', () => {
         col: 0,
       },
       map: [
-        [0, 0, 0],
-        [1, 0, 0],
-        [0, 0, 0],
+        [Block.EMPTY, Block.EMPTY, Block.EMPTY],
+        [Block.PLAYER, Block.EMPTY, Block.EMPTY],
+        [Block.EMPTY, Block.EMPTY, Block.EMPTY],
       ],
     });
   });
@@ -122,9 +128,9 @@ describe('dungeon reducer', () => {
         col: 1,
       },
       map: [
-        [0, 1, 0],
-        [0, 0, 0],
-        [0, 0, 0],
+        [Block.EMPTY, Block.PLAYER, Block.EMPTY],
+        [Block.EMPTY, Block.EMPTY, Block.EMPTY],
+        [Block.EMPTY, Block.EMPTY, Block.EMPTY],
       ],
     });
   });
@@ -140,9 +146,9 @@ describe('dungeon reducer', () => {
         col: 1,
       },
       map: [
-        [0, 0, 0],
-        [0, 0, 0],
-        [0, 1, 0],
+        [Block.EMPTY, Block.EMPTY, Block.EMPTY],
+        [Block.EMPTY, Block.EMPTY, Block.EMPTY],
+        [Block.EMPTY, Block.PLAYER, Block.EMPTY],
       ],
     });
   });
@@ -158,9 +164,9 @@ describe('dungeon reducer', () => {
         col: 0,
       },
       map: [
-        [0, 3, 0],
-        [1, 0, 5],
-        [0, 30, 0],
+        [Block.EMPTY, Block.WEAPON, Block.EMPTY],
+        [Block.PLAYER, Block.EMPTY, Block.PORTAL],
+        [Block.EMPTY, Block.ENEMY, Block.EMPTY],
       ],
       playerHealth: 120,
     });
@@ -177,11 +183,11 @@ describe('dungeon reducer', () => {
         col: 1,
       },
       map: [
-        [0, 1, 0],
-        [2, 0, 5],
-        [0, 30, 0],
+        [Block.EMPTY, Block.PLAYER, Block.EMPTY],
+        [Block.HEALTH, Block.EMPTY, Block.PORTAL],
+        [Block.EMPTY, Block.ENEMY, Block.EMPTY],
       ],
-      playerWeapon: 'Knife',
+      playerWeapon: WEAPONS[1],
       weaponLevel: 1,
       playerAttack: 10,
     });
@@ -198,7 +204,13 @@ describe('dungeon reducer', () => {
         col: expect.any(Number),
       },
       currentDungeon: 1,
-      map: expect.arrayContaining([expect.arrayContaining([1]), expect.arrayContaining([2]), expect.arrayContaining([3]), expect.arrayContaining([5]), expect.arrayContaining([60])]),
+      map: expect.arrayContaining([
+        expect.arrayContaining([Block.PLAYER]),
+        expect.arrayContaining([Block.HEALTH]),
+        expect.arrayContaining([Block.WEAPON]),
+        expect.arrayContaining([Block.PORTAL]),
+        expect.arrayContaining([Block.ENEMY * 2]),
+      ]),
     });
   });
 
@@ -215,9 +227,9 @@ describe('dungeon reducer', () => {
       ...mockStateFilledMap,
       playerHealth: expect.any(Number),
       map: [
-        [0, 3, 0],
-        [2, 1, 5],
-        [0, expect.any(Number), 0],
+        [Block.EMPTY, Block.WEAPON, Block.EMPTY],
+        [Block.HEALTH, Block.PLAYER, Block.PORTAL],
+        [Block.EMPTY, expect.any(Number), Block.EMPTY],
       ],
     });
   });
@@ -270,12 +282,12 @@ describe('actions', () => {
 
 describe('App Component', () => {
   let wrapper;
-  const mockMovefn = jest.fn();
-  const mockToggleLightsfn = jest.fn();
+  const mockMove = jest.fn();
+  const mockToggleLights = jest.fn();
   const mockMap = [
-    [0, 0, 0],
-    [0, 1, 0],
-    [0, 0, 0],
+    [Block.EMPTY, Block.EMPTY, Block.EMPTY],
+    [Block.EMPTY, Block.PLAYER, Block.EMPTY],
+    [Block.EMPTY, Block.EMPTY, Block.EMPTY],
   ];
   const mockHealth = 100;
   const mockWeapon = 'hands';
@@ -289,7 +301,20 @@ describe('App Component', () => {
   };
 
   beforeEach(() => {
-    wrapper = Enzyme.shallow(<App move={mockMovefn} toggleLights={mockToggleLightsfn} map={mockMap} playerHealth={mockHealth} playerWeapon={mockWeapon} playerAttack={mockAttack} playerXPToNextLevel={mockXP} currentDungeon={mockDungeon} playerLevel={mockLevel} playerCoordinates={mockCoordinates} />);
+    wrapper = Enzyme.shallow(
+      <App
+        move={mockMove}
+        toggleLights={mockToggleLights}
+        map={mockMap}
+        playerHealth={mockHealth}
+        playerWeapon={mockWeapon}
+        playerAttack={mockAttack}
+        playerXPToNextLevel={mockXP}
+        currentDungeon={mockDungeon}
+        playerLevel={mockLevel}
+        playerCoordinates={mockCoordinates}
+      />
+    );
   });
 
   it('renders without crashing', () => {
