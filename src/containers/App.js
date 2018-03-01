@@ -7,9 +7,7 @@ import StatsPanel from '../components/StatsPanel';
 import Title from '../components/Title';
 import Legend from '../components/Legend';
 
-const SIGHT_RANGE = 4;
-
-class App extends Component {
+export class App extends Component {
   
   static propTypes = {
     playerHealth: PropTypes.number.isRequired,
@@ -36,6 +34,10 @@ class App extends Component {
   }
 
   render() {
+    const LIGHT_RANGE = 4;
+    const ROW_RANGE = 10;
+    const COL_RANGE = 15;
+
     return (
       <div className="App">
         <Title 
@@ -55,22 +57,32 @@ class App extends Component {
             {this.props.map.map((row, rowIndex) => {
               return(
                 <div key={rowIndex} className="map-row">
-                  {row.map((block, colIndex) => {
-                    return(
-                      <span key={colIndex}>
-                        {
-                          ( !this.props.lightsOn &&
-                            (rowIndex < this.props.playerCoordinates.row - SIGHT_RANGE 
-                            || rowIndex > this.props.playerCoordinates.row + SIGHT_RANGE 
-                            || colIndex < this.props.playerCoordinates.col - SIGHT_RANGE 
-                            || colIndex > this.props.playerCoordinates.col + SIGHT_RANGE)
-                          )
-                            ? <span className={`block blackout block-value-${block}`} key={colIndex} />
-                            : <span className={`block block-value-${block}`} key={colIndex} />
-                        }
-                      </span>
-                    );
-                  })}
+                  {
+                    row.filter(() => 
+                      rowIndex < this.props.playerCoordinates.row + ROW_RANGE 
+                      && rowIndex > this.props.playerCoordinates.row - ROW_RANGE
+                    ).map((block, colIndex) => {
+                      return(
+                        <span key={colIndex}>
+                          {
+                            colIndex < this.props.playerCoordinates.col + COL_RANGE 
+                            && colIndex > this.props.playerCoordinates.col - COL_RANGE
+                            && (
+                              ( 
+                                !this.props.lightsOn &&
+                                (rowIndex < this.props.playerCoordinates.row - LIGHT_RANGE 
+                                || rowIndex > this.props.playerCoordinates.row + LIGHT_RANGE 
+                                || colIndex < this.props.playerCoordinates.col - LIGHT_RANGE 
+                                || colIndex > this.props.playerCoordinates.col + LIGHT_RANGE)
+                              )
+                              ? <span className={`block blackout block-value-${block}`} key={colIndex} />
+                              : <span className={`block block-value-${block}`} key={colIndex} />
+                            )
+                          }
+                        </span>
+                      );
+                    })
+                  }
                 </div>
               );
             })}
